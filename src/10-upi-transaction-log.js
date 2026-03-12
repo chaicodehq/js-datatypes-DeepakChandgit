@@ -46,6 +46,98 @@
  *   //      categoryBreakdown: { income: 5000, food: 300 },
  *   //      frequentContact: "Swiggy", allAbove100: false, hasLargeTransaction: true }
  */
-export function analyzeUPITransactions(transactions) {
-  // Your code here
+export function analyzeUPITransactions( transactions ) {
+
+  if ( !Array.isArray( transactions ) ) return null
+
+  const getValidTransaction = ( transactions ) => {
+    return transactions.reduce( ( validTransaction, currentTransaction ) => {
+      if ( typeof currentTransaction?.amount === "number" && currentTransaction?.amount > 0 && ( currentTransaction.type === "debit" || currentTransaction.type === 'credit' ) ) {
+        validTransaction.push( currentTransaction )
+        return validTransaction
+      }
+      else {
+        return validTransaction
+      }
+    }, [] )
+  }
+  const validTransactions = getValidTransaction( transactions )
+
+  const getTotalCreditsAndTotalDebits = ( validTransactions ) => {
+    const intialValue = { totalDebit: 0, totalCredit: 0 }
+
+    return validTransactions.reduce( ( acc, currentTransaction ) => {
+
+      if ( currentTransaction.type === "debit" ) {
+        acc.totalDebit += currentTransaction.amount
+      } else if ( currentTransaction.type === 'credit' ) {
+        acc.totalCredit += currentTransaction.amount
+      } return acc
+    }, intialValue )
+
+  }
+
+  if ( validTransactions.length <= 0 ) return null
+
+  const transactionCount = validTransactions.length
+
+  const { totalCredit, totalDebit } = getTotalCreditsAndTotalDebits( validTransactions )
+
+  const netBalance = totalCredit - totalDebit
+
+  const avgTransaction = Math.round( (totalCredit + totalDebit )/ transactionCount )
+
+  const getHighestTransaction = ( transactions ) => {
+
+    return transactions.reduce( ( acc, currentTransaction ) => {
+      return acc.amount > currentTransaction.amount ? acc : currentTransaction
+    } )
+
+  }
+
+  const highestTransaction = getHighestTransaction( validTransactions )
+
+  const getCategoryBreakdown = ( transactions ) => {
+
+    return transactions.reduce( ( acc, { amount, category } ) => {
+
+      acc[ category ] = ( acc[ category ] || 0 ) + amount
+      return acc
+
+    }, {} )
+
+  }
+
+  const categoryBreakdown = getCategoryBreakdown( validTransactions )
+
+  const getFrequentContact = ( transactions ) => {
+
+
+    const contactMap = transactions.reduce( ( acc, { to } ) => {
+      acc.set( to, ( acc.get( to ) || 0 ) + 1 )
+      return acc
+    }, new Map() )
+
+    let maxFreq = 0
+    let freqContact = ''
+
+    contactMap.forEach( ( value, key ) => {
+      if ( value > maxFreq ) {
+        maxFreq = value;
+        freqContact = key;
+      }
+    } )
+
+    return freqContact
+
+
+  }
+
+  const frequentContact = getFrequentContact( validTransactions )
+
+  const allAbove100 = validTransactions.every( ( tran ) => tran.amount > 100 )
+
+  const hasLargeTransaction = validTransactions.some( ( tran ) => tran.amount >= 5000 )
+
+  return { totalCredit, totalDebit, netBalance, transactionCount, avgTransaction, highestTransaction, categoryBreakdown, frequentContact, allAbove100, hasLargeTransaction }
 }

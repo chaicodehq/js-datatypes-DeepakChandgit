@@ -40,6 +40,101 @@
  *   generateReportCard({ name: "Priya", marks: { maths: 35, science: 28 } })
  *   // => { name: "Priya", totalMarks: 63, percentage: 31.5, grade: "F", ... }
  */
-export function generateReportCard(student) {
-  // Your code here
+export function generateReportCard( student ) {
+
+  if ( !student || typeof student !== 'object' || Array.isArray( student ) ) return null
+  if ( !student.name || typeof student.name !== 'string' ) return null
+  if ( !student?.marks ) return null
+
+  if ( student.marks ) {
+
+    const isValid = Object.values( student.marks ).every( val => typeof val !== "number" || val <= 0 || val > 100 || val.length );
+    if ( isValid ) return null
+  }
+
+  const getTotalMarks = ( marks ) => {
+
+    return Object.values( marks ).reduce( ( acc, cr ) => {
+
+      return acc + cr
+
+    }, 0 )
+  }
+
+  const getHighestMarks = ( marks ) => {
+
+    const highestMarks = Object.entries( marks ).reduce( ( acc, current ) => {
+      return acc[ 1 ] > current[ 1 ] ? acc : current;
+    }, )
+
+    return Object.keys( Object.fromEntries( [ highestMarks ] ) ).toString()
+
+  }
+
+  const getLowestMarks = ( marks ) => {
+
+    const lowestMarks = Object.entries( marks ).reduce( ( acc, current ) => {
+      return acc[ 1 ] < current[ 1 ] ? acc : current;
+    }, )
+
+    return Object.keys( Object.fromEntries( [ lowestMarks ] ) ).toString()
+
+  }
+
+  const getPassedSubjects = ( marks ) => {
+
+    const passedSubjects = Object.entries( marks ).filter( ( [ key, value ] ) => value >= 40 )
+    return Object.keys( Object.fromEntries( passedSubjects ) )
+
+  }
+
+  const getFailedSubjects = ( marks ) => {
+
+    const failedSubjects = Object.entries( marks ).filter( ( [ key, value ] ) => value <= 39 )
+    return Object.keys( Object.fromEntries( failedSubjects ) )
+
+  }
+
+  const findPercentage = ( marks ) => {
+
+    const percentage = Object.values( marks ).reduce( ( acc, current ) => acc + current, 0 ) / Object.keys( marks ).length * 100 / 100
+    return Number(percentage.toFixed( 2 ))
+  }
+
+  const findGrade = ( percentage ) => {
+    let grade = ""
+    if ( percentage >= 90 ) {
+      grade = "A+"
+    } else if ( percentage >= 80 ) {
+      grade = "A"
+    } else if ( percentage >= 70 ) {
+      grade = "B"
+    } else if ( percentage >= 60 ) {
+      grade = "C"
+    } else if ( percentage >= 40 ) {
+      grade = "D"
+    } else {
+      grade = "F"
+    }
+    return grade
+  }
+
+  const getTotalSubjects = ( marks ) => {
+    const totalSubjects = Object.entries( marks ).length
+    return totalSubjects
+  }
+
+  const name = student.name
+  const totalMarks = getTotalMarks( student.marks )
+  const highestMarks = getHighestMarks( student.marks )
+  const lowestMarks = getLowestMarks( student.marks )
+  const passedSubjects = getPassedSubjects( student.marks )
+  const failedSubjects = getFailedSubjects( student.marks )
+  const percentage = findPercentage( student.marks )
+  const grade = findGrade( percentage )
+  const totalSubjects = getTotalSubjects( student.marks )
+
+
+  return { name: name, totalMarks, percentage, grade, highestSubject: highestMarks, lowestSubject: lowestMarks, passedSubjects, failedSubjects, subjectCount: totalSubjects }
+
 }

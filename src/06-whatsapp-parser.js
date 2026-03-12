@@ -38,6 +38,46 @@
  *   // => { date: "01/12/2024", time: "09:15", sender: "Priya",
  *   //      text: "I love this song", wordCount: 4, sentiment: "love" }
  */
-export function parseWhatsAppMessage(message) {
-  // Your code here
+export function parseWhatsAppMessage( message ) {
+  if ( typeof message !== "string" ) return null
+
+  const separators = [ ',', ":", "-", ": " ]
+
+  for ( const separator of separators ) {
+    if ( !message.includes( separator ) ) return null
+  }
+
+  const findSubString = ( fromSeparator, toSeparator, message ) => {
+
+    const indexOfStart = message.indexOf( fromSeparator ) || 0
+    const indexOfEnd = message.indexOf( toSeparator ) || message.length
+    const subString = message.slice( indexOfStart + 1, indexOfEnd )
+    return subString
+
+  }
+
+  const date = message.charAt( 0 ) + findSubString( '', ',', message ).trim()
+  const time = findSubString( ', ', ' -', message ).trim()
+  const sender = findSubString( '- ', ': ', message ).trim()
+  const text = findSubString( ': ', '', message ).trim()
+
+
+  const wordCount = text.split( ' ' ).length
+
+  const lowerText = text.toLowerCase();
+  let sentiment = "neutral";
+
+  const funnyKeywords = [ "haha", "😂", ":)" ];
+  const loveKeywords = [ "love", "pyaar", "❤" ];
+
+  if ( funnyKeywords.some( key => lowerText.includes( key ) ) ) {
+    sentiment = "funny";
+  }
+  else if ( loveKeywords.some( key => lowerText.includes( key ) ) ) {
+    sentiment = "love";
+  }
+
+
+  return { date, time, sender, text, wordCount, sentiment }
+
 }

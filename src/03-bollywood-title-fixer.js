@@ -29,6 +29,20 @@
  *   fixBollywoodTitle("dil ka kya kare")
  *   // => "Dil ka Kya Kare"
  */
-export function fixBollywoodTitle(title) {
-  // Your code here
+export function fixBollywoodTitle( title ) {
+  if ( typeof title !== 'string' ) return ''
+  if ( !title.trim() ) return ""
+
+  const lowerCaseWords = [ "ka", "ki", "ke", "se", "aur", "ya", "the", "of", "in", "a", "an" ]
+  const arrayOfWords = title.split( ' ' ).filter( ( word ) => word ).map( ( word ) => {
+    if ( lowerCaseWords.includes( word ) ) return word.toLowerCase().trim()
+    const restWords = word.slice( 1).toLowerCase().trim()
+    return word[0].toUpperCase().trim()+restWords
+  } )
+
+  const firstChar = arrayOfWords.join().charAt(0).toUpperCase()
+  const restWords = arrayOfWords.join( " " ).slice(1).trim()
+
+  return firstChar+restWords
+
 }

@@ -27,6 +27,19 @@
  *   maskAadhaar("9876")
  *   // => "INVALID"
  */
-export function maskAadhaar(aadhaarNumber) {
-  // Your code here
+export function maskAadhaar( aadhaarNumber ) {
+  let result
+  if ( typeof aadhaarNumber === "string" || typeof aadhaarNumber === "number" ) {
+    if ( aadhaarNumber.length !== 12 ) return "INVALID"
+    if ( isNaN( aadhaarNumber.slice( -4 ) ) ) return "INVALID"
+    const maskedString = "XXXX-"
+
+    result = maskedString.repeat( 2 ) + aadhaarNumber.toString().slice( -4 )
+
+  } else {
+    return "INVALID"
+  }
+
+
+  return String( result )
 }
